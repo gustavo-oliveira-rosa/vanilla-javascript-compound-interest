@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Juros Compostos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .money-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            opacity: 0.3;
+        }
+
+        .content {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: #ecf0f1;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3498db;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .value-display {
+            font-weight: bold;
+            color: #2c3e50;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .btn {
+            padding: 18px 30px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .results-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #3498db;
+        }
+
+        .card h3 {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .card .value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .card.highlight {
+            background: #e8f5e8;
+            border-left-color: #27ae60;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border: 1px solid #ecf0f1;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        th {
+            background: #34495e;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #27ae60;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .comparison {
+            background: #34495e;
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .comparison h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .comparison-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="money-icon">💰</div>
+            <h1>💰 Simulador de Juros Compostos</h1>
+            <p>Calcule o poder dos juros compostos em seus investimentos</p>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="initialInvestment">Investimento Inicial (R$)</label>
+                    <input type="number" id="initialInvestment" value="1000" min="0" step="100">
+                    <div class="slider-container">
+                        <input type="range" id="initialInvestmentSlider" class="slider" min="0" max="100000" value="1000" step="100">
+                        <span class="value-display" id="initialInvestmentValue">R$ 1.000</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="monthlyContribution">Aporte Mensal (R$)</label>
+                    <input type="number" id="monthlyContribution" value="100" min="0" step="50">
+                    <div class="slider-container">
+                        <input type="range" id="monthlyContributionSlider" class="slider" min="0" max="10000" value="100" step="50">
+                        <span class="value-display" id="monthlyContributionValue">R$ 100</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="annualInterest">Taxa de Juros Anual (%)</label>
+                    <input type="number" id="annualInterest" value="8" min="0" max="100" step="0.1">
+                    <div class="slider-container">
+                        <input type="range" id="annualInterestSlider" class="slider" min="0" max="30" value="8" step="0.1">
+                        <span class="value-display" id="annualInterestValue">8%</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="investmentPeriod">Período de Investimento (anos)</label>
+                    <input type="number" id="investmentPeriod" value="10" min="1" max="50" step="1">
+                    <div class="slider-container">
+                        <input type="range" id="investmentPeriodSlider" class="slider" min="1" max="50" value="10" step="1">
+                        <span class="value-display" id="investmentPeriodValue">10 anos</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="interestType">Tipo de Juros</label>
+                    <select id="interestType">
+                        <option value="compound">Juros Compostos</option>
+                        <option value="simple">Juros Simples</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="calculateInvestment()">Calcular Projeção</button>
+                <button class="btn btn-secondary" onclick="resetForm()">Limpar Campos</button>
+            </div>
+
+            <div class="results-section">
+                <h2 style="text-align: center; margin-bottom: 20px; color: #2c3e50;">Projeção do Investimento</h2>
+                
+                <div class="summary-cards">
+                    <div class="card">
+                        <h3>Total Investido</h3>
+                        <div class="value" id="totalInvested">R$ 0</div>
+                    </div>
+                    <div class="card">
+                        <h3>Juros Acumulados</h3>
+                        <div class="value" id="totalInterest">R$ 0</div>
+                    </div>
+                    <div class="card highlight">
+                        <h3>Valor Final</h3>
+                        <div class="value" id="finalValue">R$ 0</div>
+                    </div>
+                    <div class="card">
+                        <h3>Rentabilidade</h3>
+                        <div class="value" id="profitability">0%</div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>Capital Investido</span>
+                        <span>Juros</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="investmentChart"></canvas>
+                </div>
+
+                <h3 style="margin: 20px 0 10px; color: #2c3e50;">Evolução Anual</h3>
+                <div class="table-container">
+                    <table id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th>Ano</th>
+                                <th>Total Investido</th>
+                                <th>Juros</th>
+                                <th>Valor Acumulado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody">
+                            <!-- Os resultados serão inseridos aqui via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="comparison">
+                    <h3>💡 Poder dos Juros Compostos</h3>
+                    <div class="comparison-item">
+                        <span>Seu investimento cresceria:</span>
+                        <span id="growthFactor">0x</span>
+                    </div>
+                    <div class="comparison-item">
+                        <span>Equivalente a poupar por:</span>
+                        <span id="savingYears">0 anos</span>
+                    </div>
+                    <div class="comparison-item">
+                        <span>Juros sobre juros:</span>
+                        <span id="interestOnInterest">R$ 0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">Cálculo realizado com sucesso!</div>
+
+    <!-- Incluindo Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Elementos DOM
+        const initialInvestment = document.getElementById('initialInvestment');
+        const initialInvestmentSlider = document.getElementById('initialInvestmentSlider');
+        const initialInvestmentValue = document.getElementById('initialInvestmentValue');
+        
+        const monthlyContribution = document.getElementById('monthlyContribution');
+        const monthlyContributionSlider = document.getElementById('monthlyContributionSlider');
+        const monthlyContributionValue = document.getElementById('monthlyContributionValue');
+        
+        const annualInterest = document.getElementById('annualInterest');
+        const annualInterestSlider = document.getElementById('annualInterestSlider');
+        const annualInterestValue = document.getElementById('annualInterestValue');
+        
+        const investmentPeriod = document.getElementById('investmentPeriod');
+        const investmentPeriodSlider = document.getElementById('investmentPeriodSlider');
+        const investmentPeriodValue = document.getElementById('investmentPeriodValue');
+        
+        const interestType = document.getElementById('interestType');
+        
+        // Resultados
+        const totalInvested = document.getElementById('totalInvested');
+        const totalInterest = document.getElementById('totalInterest');
+        const finalValue = document.getElementById('finalValue');
+        const profitability = document.getElementById('profitability');
+        const progressFill = document.getElementById('progressFill');
+        const resultsBody = document.getElementById('resultsBody');
+        const growthFactor = document.getElementById('growthFactor');
+        const savingYears = document.getElementById('savingYears');
+        const interestOnInterest = document.getElementById('interestOnInterest');
+        
+        // Gráfico
+        let investmentChart = null;
+
+        // Sincronizar inputs e sliders
+        function syncInputs() {
+            // Investimento inicial
+            initialInvestment.addEventListener('input', function() {
+                initialInvestmentSlider.value = this.value;
+                updateDisplay();
+            });
+            
+            initialInvestmentSlider.addEventListener('input', function() {
+                initialInvestment.value = this.value;
+                updateDisplay();
+            });
+            
+            // Aporte mensal
+            monthlyContribution.addEventListener('input', function() {
+                monthlyContributionSlider.value = this.value;
+                updateDisplay();
+            });
+            
+            monthlyContributionSlider.addEventListener('input', function() {
+                monthlyContribution.value = this.value;
+                updateDisplay();
+            });
+            
+            // Juros anuais
+            annualInterest.addEventListener('input', function() {
+                annualInterestSlider.value = this.value;
+                updateDisplay();
+            });
+            
+            annualInterestSlider.addEventListener('input', function() {
+                annualInterest.value = this.value;
+                updateDisplay();
+            });
+            
+            // Período
+            investmentPeriod.addEventListener('input', function() {
+                investmentPeriodSlider.value = this.value;
+                updateDisplay();
+            });
+            
+            investmentPeriodSlider.addEventListener('input', function() {
+                investmentPeriod.value = this.value;
+                updateDisplay();
+            });
+        }
+
+        // Atualizar exibição dos valores
+        function updateDisplay() {
+            initialInvestmentValue.textContent = formatCurrency(initialInvestment.value);
+            monthlyContributionValue.textContent = formatCurrency(monthlyContribution.value);
+            annualInterestValue.textContent = `${annualInterest.value}%`;
+            investmentPeriodValue.textContent = `${investmentPeriod.value} anos`;
+        }
+
+        // Calcular investimento
+        function calculateInvestment() {
+            const initial = parseFloat(initialInvestment.value);
+            const monthly = parseFloat(monthlyContribution.value);
+            const annualRate = parseFloat(annualInterest.value) / 100;
+            const years = parseInt(investmentPeriod.value);
+            const isCompound = interestType.value === 'compound';
+            
+            // Calcular taxa mensal
+            const monthlyRate = isCompound ? 
+                Math.pow(1 + annualRate, 1/12) - 1 : 
+                annualRate / 12;
+            
+            let total = initial;
+            let totalInvestedValue = initial;
+            const results = [];
+            
+            // Calcular para cada ano
+            for (let year = 1; year <= years; year++) {
+                // Calcular para cada mês do ano
+                for (let month = 1; month <= 12; month++) {
+                    if (isCompound) {
+                        // Juros compostos
+                        total = total * (1 + monthlyRate) + monthly;
+                    } else {
+                        // Juros simples
+                        total = total + (total * monthlyRate) + monthly;
+                    }
+                    totalInvestedValue += monthly;
+                }
+                
+                const interestEarned = total - totalInvestedValue;
+                results.push({
+                    year: year,
+                    totalInvested: totalInvestedValue,
+                    interest: interestEarned,
+                    totalValue: total
+                });
+            }
+            
+            // Exibir resultados
+            displayResults(results, totalInvestedValue, total);
+            showNotification('Cálculo realizado com sucesso!');
+        }
+
+        // Exibir resultados
+        function displayResults(results, totalInvestedValue, finalTotal) {
+            const finalInterest = finalTotal - totalInvestedValue;
+            const profitabilityPercent = (finalInterest / totalInvestedValue) * 100;
+            
+            // Atualizar cards de resumo
+            totalInvested.textContent = formatCurrency(totalInvestedValue);
+            totalInterest.textContent = formatCurrency(finalInterest);
+            finalValue.textContent = formatCurrency(finalTotal);
+            profitability.textContent = `${profitabilityPercent.toFixed(2)}%`;
+            
+            // Atualizar barra de progresso
+            const investedPercentage = (totalInvestedValue / finalTotal) * 100;
+            progressFill.style.width = `${investedPercentage}%`;
+            
+            // Atualizar tabela
+            resultsBody.innerHTML = '';
+            results.forEach(result => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${result.year}</td>
+                    <td>${formatCurrency(result.totalInvested)}</td>
+                    <td>${formatCurrency(result.interest)}</td>
+                    <td><strong>${formatCurrency(result.totalValue)}</strong></td>
+                `;
+                resultsBody.appendChild(row);
+            });
+            
+            // Atualizar comparações
+            const growth = finalTotal / totalInvestedValue;
+            growthFactor.textContent = `${growth.toFixed(1)}x`;
+            
+            // Calcular anos de economia sem juros
+            const savingYearsValue = finalTotal / (parseFloat(monthlyContribution.value) * 12 + parseFloat(initialInvestment.value));
+            savingYears.textContent = `${savingYearsValue.toFixed(1)} anos`;
+            
+            // Calcular juros sobre juros (aproximado)
+            const simpleInterest = parseFloat(initialInvestment.value) * (1 + parseFloat(annualInterest.value)/100 * parseInt(investmentPeriod.value)) +
+                                 parseFloat(monthlyContribution.value) * 12 * parseInt(investmentPeriod.value) * (1 + parseFloat(annualInterest.value)/100 * parseInt(investmentPeriod.value) / 2);
+            const interestOnInterestValue = finalTotal - simpleInterest;
+            interestOnInterest.textContent = formatCurrency(Math.max(0, interestOnInterestValue));
+            
+            // Atualizar gráfico
+            updateChart(results);
+        }
+
+        // Atualizar gráfico
+        function updateChart(results) {
+            const ctx = document.getElementById('investmentChart').getContext('2d');
+            
+            // Destruir gráfico anterior se existir
+            if (investmentChart) {
+                investmentChart.destroy();
+            }
+            
+            // Preparar dados
+            const years = results.map(r => `Ano ${r.year}`);
+            const totalValues = results.map(r => r.totalValue);
+            const investedValues = results.map(r => r.totalInvested);
+            const interestValues = results.map(r => r.interest);
+            
+            // Criar novo gráfico
+            investmentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [
+                        {
+                            label: 'Valor Total',
+                            data: totalValues,
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Total Investido',
+                            data: investedValues,
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Juros Acumulados',
+                            data: interestValues,
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Evolução do Investimento'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${formatCurrency(context.raw)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Formatar moeda
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        // Mostrar notificação
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Resetar formulário
+        function resetForm() {
+            initialInvestment.value = 1000;
+            initialInvestmentSlider.value = 1000;
+            
+            monthlyContribution.value = 100;
+            monthlyContributionSlider.value = 100;
+            
+            annualInterest.value = 8;
+            annualInterestSlider.value = 8;
+            
+            investmentPeriod.value = 10;
+            investmentPeriodSlider.value = 10;
+            
+            interestType.value = 'compound';
+            
+            updateDisplay();
+            calculateInvestment();
+        }
+
+        // Inicializar
+        syncInputs();
+        updateDisplay();
+        calculateInvestment();
+    </script>
+</body>
+</html>
